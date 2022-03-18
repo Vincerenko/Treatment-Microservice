@@ -2,6 +2,7 @@ package com.grid.dynamics.demoprojecthospital.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grid.dynamics.demoprojecthospital.dto.AppointmentCalendarDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -31,13 +32,21 @@ public class Appointment implements Serializable {
     private Integer count;
     @JsonProperty
     private LocalDateTime meetDate;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "treatment_id")
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private TreatmentEntity treatment;
+
+    public Appointment(AppointmentCalendarDto appointmentCalendarDto){
+        this.id= appointmentCalendarDto.getId();
+        this.name= appointmentCalendarDto.getTitle();
+        this.price= appointmentCalendarDto.getCost();
+        this.meetDate=LocalDateTime.of(appointmentCalendarDto.getDate(),appointmentCalendarDto.getFromTime());
+        this.count=1;
+    }
+
 
 
 }

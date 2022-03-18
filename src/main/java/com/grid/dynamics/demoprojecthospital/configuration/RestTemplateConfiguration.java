@@ -11,6 +11,8 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateConfiguration {
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new MyErrorHandler());
+        return restTemplate;
     }
 }

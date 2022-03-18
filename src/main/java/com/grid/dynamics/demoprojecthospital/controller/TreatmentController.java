@@ -40,11 +40,13 @@ public class TreatmentController {
             @ApiResponse(responseCode = "404", description = "Don't have any treatments")})
     @Operation(summary = "get treatments by patient id", description = "get all treatments from patient history with currency UAH")
     @ResponseStatus(HttpStatus.OK)
-    public List<TreatmentDto> getTreatment(@RequestParam(name = "id") Long id) {
-        if (treatmentService.getAllTreatmentsByPatientId(id).isEmpty()) {
+    public List<TreatmentDto> getTreatment(@RequestParam Long id,
+                                           @RequestParam int numberOfPage,
+                                           @RequestParam int countOfItems) {
+        if (treatmentService.getAllTreatmentsByPatientId(id, numberOfPage, countOfItems).isEmpty()) {
             throw new ApiRequestExceptionTreatment(String.format(responseWithoutID, id));
         }
-        return treatmentService.getAllTreatmentsByPatientId(id);
+        return treatmentService.getAllTreatmentsByPatientId(id, numberOfPage, countOfItems);
     }
 
     /**
@@ -71,6 +73,28 @@ public class TreatmentController {
 
     }
 
+    @GetMapping("/treatments/{id}/{currency}/{numberOfPage}/{countOfItems}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "treatments sent"),
+            @ApiResponse(responseCode = "404", description = "Don't have any treatments")})
+    @Operation(summary = "get treatments by id with currency", description = "get all treatments from patient history with currency USD, RUB or EUR")
+    @ResponseStatus(HttpStatus.OK)
+    public List<TreatmentDto> getTreatmentWithCurrencyByPatientId(@PathVariable(name = "id") Long id,
+                                                                  @PathVariable(name = "currency") String currency,
+                                                                  @PathVariable(name = "numberOfPage") int numberOfPage,
+                                                                  @PathVariable(name = "countOfItems") int countOfItems) {
+        try {
+            List<TreatmentDto> allTreatmentsByPatientId = treatmentService.getAllTreatmentsByPatientId(id, currency, numberOfPage, countOfItems);
+            if (allTreatmentsByPatientId.isEmpty()) {
+                throw new ApiRequestExceptionTreatment(String.format(responseWithoutID, id));
+            }
+            return allTreatmentsByPatientId;
+        } catch (ResourceAccessException e) {
+            throw new ApiRequestExceptionTreatment("Sorry, but temporarily apps doesn't have access to up-to-date course exchange (USD,EUR,RUB). You should request UAH.");
+        }
+
+    }
+
     /**
      * @return all Treatments of history of hospital
      */
@@ -83,6 +107,7 @@ public class TreatmentController {
     @ResponseStatus(HttpStatus.OK)
     public List<TreatmentDto> getAll() {
         List<TreatmentDto> allTreatments = treatmentService.getAllTreatments();
+
         if (allTreatments.isEmpty()) {
             throw new ApiRequestExceptionTreatment("don't have any treatments in DataBase");
         }
@@ -139,17 +164,43 @@ public class TreatmentController {
      * @param afterDate  - demand date than will be bigger than Treatment was ended
      * @return - List of TreatmentEntity by PatientId and by during after "beforeDate" and before "afterDate";
      */
-    @GetMapping("/treatments/{id}/{beforeDate}/{afterDate}")
+    @GetMapping("/treatments/{id}/{beforeDate}/{afterDate}/{numberOfPage}/{countOfItems}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "treatments sent"),
             @ApiResponse(responseCode = "404", description = "No such any treatments")})
     @Operation(summary = "get treatments by PatientId with range of time ", description = "get all treatments from patient history with range between beforeDate and фfterDate")
     @ResponseStatus(HttpStatus.OK)
-    public List<TreatmentEntity> getTreatmentByRangeOfDate(@PathVariable(name = "id") Long id, @PathVariable(name = "beforeDate") String beforeDate, @PathVariable(name = "afterDate") String afterDate) {
-        List<TreatmentEntity> allTreatmentsByPatientIdAndRangeDates = treatmentService.getAllTreatmentsByPatientIdAndRangeDates(LocalDate.parse(beforeDate), LocalDate.parse(afterDate), id);
+    public List<TreatmentEntity> getTreatmentByRangeOfDateWithoutPages(@PathVariable(name = "id") Long id,
+                                                                       @PathVariable(name = "beforeDate") String beforeDate,
+                                                                       @PathVariable(name = "afterDate") String afterDate,
+                                                                       @PathVariable(name = "numberOfPage") int numberOfPage,
+                                                                       @PathVariable(name = "countOfItems") int countOfItems) {
+        List<TreatmentEntity> allTreatmentsByPatientIdAndRangeDates = treatmentService.getAllTreatmentsByPatientIdAndRangeDates(LocalDate.parse(beforeDate), LocalDate.parse(afterDate), id, numberOfPage, countOfItems);
         if (allTreatmentsByPatientIdAndRangeDates.isEmpty()) {
             throw new ApiRequestExceptionTreatment("Sorry, but you don't have any treatments by your range of time");
         }
         return allTreatmentsByPatientIdAndRangeDates;
+    }
+
+    @GetMapping("/treatments/{id}/{dateFirst}/{dateSecond}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "treatments sent"),
+            @ApiResponse(responseCode = "404", description = "No such any treatments")})
+    @Operation(summary = "get treatments by PatientId with range of time ", description = "get all treatments from patient history with range between beforeDate and фfterDate")
+    @ResponseStatus(HttpStatus.OK)
+    public List<TreatmentEntity> getTreatmentByRangeOfDateWithoutPages(@PathVariable(name = "id") Long id,
+                                                                       @PathVariable(name = "dateFirst") String dateFirst,
+                                                                       @PathVariable(name = "dateSecond") String dateSecond
+    ) {
+        List<TreatmentEntity> allTreatmentsByPatientIdAndRangeDates = treatmentService.getAllTreatmentsByPatientIdAndRangeDates(LocalDate.parse(dateFirst), LocalDate.parse(dateSecond), id);
+        if (allTreatmentsByPatientIdAndRangeDates.isEmpty()) {
+            throw new ApiRequestExceptionTreatment("Sorry, but you don't have any treatments by your range of time with id" + id + ", or your range of date.");
+        }
+        return allTreatmentsByPatientIdAndRangeDates;
+    }
+
+    @GetMapping("/treatment/{patientId}/{doctorId}")
+    public List<TreatmentDto> getFreshTreatments(@PathVariable(name = "patientId")Long patientId,@PathVariable(name = "doctorId") Long doctorId){
+        return treatmentService.getAllTreatmentsByPatientIdAndDoctorId(patientId,doctorId);
     }
 }

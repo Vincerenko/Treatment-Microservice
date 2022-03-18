@@ -4,6 +4,7 @@ import com.grid.dynamics.demoprojecthospital.models.Currency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ import java.time.ZoneId;
 /**
  * The main purpose of this (CurrencyServiceApi) class provide up-to-date currency course of needed currency.
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class CurrencyServiceApi {
     private final RestTemplate restTemplate;

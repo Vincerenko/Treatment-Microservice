@@ -2,6 +2,8 @@ package com.grid.dynamics.demoprojecthospital.repository;
 
 import com.grid.dynamics.demoprojecthospital.models.TreatmentEntity;
 import com.grid.dynamics.demoprojecthospital.models.enums.Status;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,6 +29,7 @@ public interface TreatmentRepository extends JpaRepository<TreatmentEntity, Long
      * @return return list of treatments that match treatments.patient_id == patientId (param)
      */
     List<TreatmentEntity> findAllByPatientId(Long patientId);
+    List<TreatmentEntity> findAllByPatientId(Long patientId, Pageable pageable);
 
     /**
      * @param treatmentId - this param receive id of 'TreatmentEntity'
@@ -34,6 +37,8 @@ public interface TreatmentRepository extends JpaRepository<TreatmentEntity, Long
      * @return return one treatment by when id match (treatments.id == treatments.patient_id)
      */
     TreatmentEntity findTreatmentEntityByIdAndPatientId(Long treatmentId, Long patientId);
+
+    List<TreatmentEntity> findTreatmentEntityByDoctorIdAndPatientId(Long doctorId, Long patientId);
 
     /**
      * @param treatmentId - this param receive id of 'TreatmentEntity'
@@ -51,7 +56,13 @@ public interface TreatmentRepository extends JpaRepository<TreatmentEntity, Long
     @Query("update TreatmentEntity e set e.status = :status where e.id = :id")
     void updateTreatmentStatusById(@Param(value = "status") Status status, @Param(value = "id") Long treatmentId);
 
-    List<TreatmentEntity> findAllByStartDateGreaterThanEqualAndEndDateLessThanEqualAndPatientIdIs(LocalDate beforeDate, LocalDate afterDate, Long patientId);
+    List<TreatmentEntity> findAllByStartDateGreaterThanEqualAndEndDateLessThanEqualAndPatientIdIs(LocalDate beforeDate,
+                                                                                                  LocalDate afterDate,
+                                                                                                  Long patientId,
+                                                                                                  Pageable pageable);
+    List<TreatmentEntity> findAllByStartDateGreaterThanEqualAndEndDateLessThanEqualAndPatientIdIs(LocalDate beforeDate,
+                                                                                                  LocalDate afterDate,
+                                                                                                  Long patientId);
 
     @Modifying
     @Query("update TreatmentEntity e set e.price = :price+e.price where e.id = :id")
