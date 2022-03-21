@@ -1,9 +1,7 @@
 package com.grid.dynamics.demoprojecthospital.services.api;
 
-import com.grid.dynamics.demoprojecthospital.models.wrapper.AppointmentCalendarDto;
 import com.grid.dynamics.demoprojecthospital.models.wrapper.MedicineDto;
 import com.grid.dynamics.demoprojecthospital.utils.HeaderService;
-import com.netflix.discovery.provider.Serializer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -18,12 +16,16 @@ public class MedicineServiceApi {
     private final RestTemplate restTemplate;
     private final HeaderService headerService;
     private final String url = "https://medicine-management.herokuapp.com/medicines";
-            
-    public ResponseEntity<MedicineDto[]> getAppointmentFromServer() {
+    private final String urlGetById = "https://medicine-management.herokuapp.com/medicines/%d";
+
+    public ResponseEntity<MedicineDto[]> getMedicineFromServer() {
         HttpEntity httpEntity = new HttpEntity(headerService.getToken());
         return restTemplate.exchange(url, HttpMethod.GET, httpEntity, MedicineDto[].class);
     }
 
-
-
+    public MedicineDto getMedicineById(Long id) {
+        HttpEntity httpEntity = new HttpEntity(headerService.getToken());
+        ResponseEntity<MedicineDto> exchange = restTemplate.exchange(String.format(urlGetById, id), HttpMethod.GET, httpEntity, MedicineDto.class);
+        return exchange.getBody();
+    }
 }

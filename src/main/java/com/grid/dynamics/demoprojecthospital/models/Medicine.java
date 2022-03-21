@@ -2,6 +2,7 @@ package com.grid.dynamics.demoprojecthospital.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grid.dynamics.demoprojecthospital.models.wrapper.MedicineDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -15,8 +16,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Medicine implements Serializable {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonProperty
@@ -28,14 +27,23 @@ public class Medicine implements Serializable {
     @Column(name = "price", nullable = false)
     private Double price;
     @JsonProperty
-    @Column(name = "number", nullable = false)
+    @Column(name = "count", nullable = false)
     private Integer count;
-
+    @JsonProperty
+    @Column(name = "otherId")
+    private Long otherId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "treatment_id")
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private TreatmentEntity treatment;
+
+    public Medicine(MedicineDto medicineDto){
+        this.otherId = medicineDto.getId();
+        this.name = medicineDto.getName();
+        this.price = medicineDto.getPrice();
+        this.count = 1;
+    }
 
 }

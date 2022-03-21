@@ -200,7 +200,7 @@ public class TreatmentController {
     }
 
     @GetMapping("/treatment/{patientId}/{doctorId}")
-    public List<TreatmentDto> getFreshTreatments(@PathVariable(name = "patientId")Long patientId,@PathVariable(name = "doctorId") Long doctorId){
+    public List<TreatmentEntity> getFreshTreatments(@PathVariable(name = "patientId")Long patientId,@PathVariable(name = "doctorId") Long doctorId){
         return treatmentService.getAllTreatmentsByPatientIdAndDoctorId(patientId,doctorId);
     }
 }

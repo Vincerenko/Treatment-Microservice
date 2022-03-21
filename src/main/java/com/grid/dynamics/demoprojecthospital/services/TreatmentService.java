@@ -129,7 +129,7 @@ public class TreatmentService {
         return result;
     }
 
-    public List<TreatmentDto> getAllTreatmentsByPatientIdAndDoctorId(Long patientId, Long doctorId) {
+    public List<TreatmentEntity> getAllTreatmentsByPatientIdAndDoctorId(Long patientId, Long doctorId) {
         long idOfTreat = 0;
         Set<AppointmentCalendarDto> setForSave = new LinkedHashSet<>();
         AppointmentCalendarDto[] appointmentFromServer = calendarServiceApi.getAppointmentFromServer(patientId, doctorId).getBody();
@@ -148,11 +148,7 @@ public class TreatmentService {
         for (AppointmentCalendarDto dto : setForSave) {
             appointmentService.saveAppointment(new Appointment(dto), idOfTreat);
         }
-        List<TreatmentDto> result = new ArrayList<>();
-        for (TreatmentEntity treatmentElement : treatmentEntities) {
-            result.add(new TreatmentDto(treatmentElement));
-        }
-        return result;
+        return treatmentRepository.findTreatmentEntityByDoctorIdAndPatientId(doctorId, patientId);
     }
 
     /**

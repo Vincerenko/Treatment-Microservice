@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "api/v1")
 @Transactional
@@ -24,11 +26,31 @@ public class MedicineController {
             @ApiResponse(responseCode = "404", description = "medicine didn't create")
     })
     @Operation(summary = "create medicine", description = "create medicine and calc sum which will be connected to treatment by treatment_id")
-    @PostMapping("/medicines/{treatmentId}")
+    @PostMapping("/medicine/{treatmentId}")
     @ResponseStatus(HttpStatus.CREATED)
     public void saveNewMedicine(@RequestBody Medicine medicine, @PathVariable(name = "treatmentId") Long treatmentId) {
         try {
             medicineService.saveCustomMedicine(medicine, treatmentId);
+        } catch (RuntimeException e) {
+            throw new ApiRequestExceptionTreatment("Something is going wrong, medicine wasn't saved, maybe your medicine.treatment_id doesn't match with main treatment.id");
+        }
+    }
+
+    @PostMapping("/medicines/{treatId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void saveListNewMedicine(@RequestBody List<Medicine> medicine, @PathVariable(name = "treatId") Long treatId) {
+        try {
+            medicineService.saveArrayMedicine(medicine, treatId);
+        } catch (RuntimeException e) {
+            throw new ApiRequestExceptionTreatment("Something is going wrong, medicine wasn't saved, maybe your medicine.treatment_id doesn't match with main treatment.id");
+        }
+    }
+
+    @PostMapping("/medicines/{treatmentId}/{medicineId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void saveListNewMedicine(@PathVariable(name = "treatmentId") Long treatmentId, @PathVariable(name = "medicineId") Long medicineId) {
+        try {
+            medicineService.saveByMedicineIdAndTreatmentId(treatmentId, medicineId);
         } catch (RuntimeException e) {
             throw new ApiRequestExceptionTreatment("Something is going wrong, medicine wasn't saved, maybe your medicine.treatment_id doesn't match with main treatment.id");
         }
