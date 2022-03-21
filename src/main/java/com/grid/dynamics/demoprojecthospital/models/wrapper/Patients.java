@@ -1,9 +1,8 @@
-package com.grid.dynamics.demoprojecthospital.models.pdmModel;
+package com.grid.dynamics.demoprojecthospital.models.wrapper;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 

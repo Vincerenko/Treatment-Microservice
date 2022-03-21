@@ -1,4 +1,4 @@
-package com.grid.dynamics.demoprojecthospital.dto;
+package com.grid.dynamics.demoprojecthospital.models.wrapper;
 
 import com.grid.dynamics.demoprojecthospital.models.enums.Type;
 import lombok.AllArgsConstructor;

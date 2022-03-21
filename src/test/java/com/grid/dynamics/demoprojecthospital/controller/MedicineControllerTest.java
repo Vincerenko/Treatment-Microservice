@@ -1,7 +1,6 @@
 package com.grid.dynamics.demoprojecthospital.controller;
 
 import com.grid.dynamics.demoprojecthospital.exceptions.ApiRequestExceptionTreatment;
-import com.grid.dynamics.demoprojecthospital.models.Appointment;
 import com.grid.dynamics.demoprojecthospital.models.Medicine;
 import com.grid.dynamics.demoprojecthospital.services.MedicineService;
 import org.junit.jupiter.api.Assertions;
@@ -23,13 +22,13 @@ class MedicineControllerTest {
 
     @Test
     void ShouldNewAppointment() {
-        Mockito.doNothing().when(medicineService).saveMedicine(new Medicine(), 1L);
+        Mockito.doNothing().when(medicineService).saveCustomMedicine(new Medicine(), 1L);
         medicineController.saveNewMedicine(new Medicine(), 1L);
     }
 
     @Test
     void checkThrowException() throws ApiRequestExceptionTreatment {
-        Mockito.doNothing().when(medicineService).saveMedicine(new Medicine(), 1L);
+        Mockito.doNothing().when(medicineService).saveCustomMedicine(new Medicine(), 1L);
         Assertions.assertThrows(ApiRequestExceptionTreatment.class, () ->
             medicineController.saveNewMedicine(null,1L));
     }

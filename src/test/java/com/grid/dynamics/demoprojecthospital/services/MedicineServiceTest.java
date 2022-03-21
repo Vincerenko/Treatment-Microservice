@@ -32,7 +32,7 @@ class MedicineServiceTest {
         medicine.setCount(2);
         when(medicineRepository.save(medicine)).thenReturn(medicine);
         doNothing().when(treatmentRepository).updateTreatmentPriceById(medicine.getPrice() * medicine.getCount(), treatmentEntity.getId());
-        medicineService.saveMedicine(medicine, treatmentEntity.getId());
+        medicineService.saveCustomMedicine(medicine, treatmentEntity.getId());
 
     }
 }

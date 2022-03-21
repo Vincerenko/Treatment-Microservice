@@ -1,6 +1,5 @@
 package com.grid.dynamics.demoprojecthospital.services;
 
-import com.grid.dynamics.demoprojecthospital.dto.AppointmentCalendarDto;
 import com.grid.dynamics.demoprojecthospital.dto.TreatmentDto;
 import com.grid.dynamics.demoprojecthospital.dto.TreatmentSaveDto;
 import com.grid.dynamics.demoprojecthospital.exceptions.ApiRequestExceptionTreatment;
@@ -8,22 +7,22 @@ import com.grid.dynamics.demoprojecthospital.models.Appointment;
 import com.grid.dynamics.demoprojecthospital.models.TreatmentEntity;
 import com.grid.dynamics.demoprojecthospital.models.enums.CurrencyEnum;
 import com.grid.dynamics.demoprojecthospital.models.enums.Status;
-import com.grid.dynamics.demoprojecthospital.repository.AppointmentRepository;
+import com.grid.dynamics.demoprojecthospital.models.wrapper.AppointmentCalendarDto;
 import com.grid.dynamics.demoprojecthospital.repository.TreatmentRepository;
 import com.grid.dynamics.demoprojecthospital.services.api.CalendarServiceApi;
 import com.grid.dynamics.demoprojecthospital.services.api.CurrencyServiceApi;
 import com.grid.dynamics.demoprojecthospital.utils.Rounder;
 import com.grid.dynamics.demoprojecthospital.utils.TreatmentValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -72,13 +71,13 @@ public class TreatmentService {
         List<TreatmentDto> result = new ArrayList<>();
         for (TreatmentDto treatmentElement : collect) {
             if (currency.equals(CurrencyEnum.USD.name())) {
-                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getUSD()[0].getRate(),2));
+                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getUSD()[0].getRate(), 2));
                 treatmentElement.setCurrency(currency);
             } else if (currency.equals(CurrencyEnum.RUB.name())) {
-                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getRUB()[0].getRate(),2));
+                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getRUB()[0].getRate(), 2));
                 treatmentElement.setCurrency(currency);
             } else if (currency.equals(CurrencyEnum.EUR.name())) {
-                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getEUR()[0].getRate(),2));
+                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getEUR()[0].getRate(), 2));
                 treatmentElement.setCurrency(currency);
             }
             result.add(treatmentElement);
@@ -88,17 +87,17 @@ public class TreatmentService {
 
     public List<TreatmentDto> getAllTreatmentsByPatientId(Long id, String currency, int numberOfPage, int countItems) {
         Pageable pageable = PageRequest.of(numberOfPage, countItems);
-        List<TreatmentDto> collect = treatmentRepository.findAllByPatientId(id,pageable).stream().map(TreatmentDto::new).collect(Collectors.toList());
+        List<TreatmentDto> collect = treatmentRepository.findAllByPatientId(id, pageable).stream().map(TreatmentDto::new).collect(Collectors.toList());
         List<TreatmentDto> result = new ArrayList<>();
         for (TreatmentDto treatmentElement : collect) {
             if (currency.equals(CurrencyEnum.USD.name())) {
-                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getUSD()[0].getRate(),2));
+                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getUSD()[0].getRate(), 2));
                 treatmentElement.setCurrency(currency);
             } else if (currency.equals(CurrencyEnum.RUB.name())) {
-                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getRUB()[0].getRate(),2));
+                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getRUB()[0].getRate(), 2));
                 treatmentElement.setCurrency(currency);
             } else if (currency.equals(CurrencyEnum.EUR.name())) {
-                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getEUR()[0].getRate(),2));
+                treatmentElement.setPrice(Rounder.roundAvoid(treatmentElement.getPrice() / currencyServiceApi.getEUR()[0].getRate(), 2));
                 treatmentElement.setCurrency(currency);
             }
             result.add(treatmentElement);
@@ -113,7 +112,7 @@ public class TreatmentService {
      */
     public List<TreatmentDto> getAllTreatmentsByPatientId(Long id, int numberOfPage, int countItems) {
         Pageable pageable = PageRequest.of(numberOfPage, countItems);
-        List<TreatmentEntity> allByPatientId = treatmentRepository.findAllByPatientId(id,pageable);
+        List<TreatmentEntity> allByPatientId = treatmentRepository.findAllByPatientId(id, pageable);
         List<TreatmentDto> result = new ArrayList<>();
         for (TreatmentEntity treatmentElement : allByPatientId) {
             result.add(new TreatmentDto(treatmentElement));
@@ -122,7 +121,6 @@ public class TreatmentService {
     }
 
     public List<TreatmentDto> getAllTreatmentsByPatientId(Long id) {
-        appointmentService.saveAppointment(null,null);
         List<TreatmentEntity> allByPatientId = treatmentRepository.findAllByPatientId(id);
         List<TreatmentDto> result = new ArrayList<>();
         for (TreatmentEntity treatmentElement : allByPatientId) {
@@ -131,15 +129,24 @@ public class TreatmentService {
         return result;
     }
 
-    public List<TreatmentDto> getAllTreatmentsByPatientIdAndDoctorId(Long patientId,Long doctorId) {
-        List<AppointmentCalendarDto> appointmentFromServer = calendarServiceApi.getAppointmentFromServer(patientId, doctorId);
-        List<TreatmentEntity> treatmentEntities = treatmentRepository.findTreatmentEntityByDoctorIdAndPatientId(doctorId,patientId);
-        for (int i = 0; i < treatmentEntities.size(); i++) {
-            for (int j = 0; j < appointmentFromServer.size(); j++) {
-                if (treatmentEntities.get(i).getStartDate().isBefore(appointmentFromServer.get(j).getDate()) && treatmentEntities.get(i).getEndDate().isAfter(appointmentFromServer.get(j).getDate())) {
-                    appointmentService.saveAppointment(new Appointment(appointmentFromServer.get(0)),treatmentEntities.get(i).getId());
+    public List<TreatmentDto> getAllTreatmentsByPatientIdAndDoctorId(Long patientId, Long doctorId) {
+        long idOfTreat = 0;
+        Set<AppointmentCalendarDto> setForSave = new LinkedHashSet<>();
+        AppointmentCalendarDto[] appointmentFromServer = calendarServiceApi.getAppointmentFromServer(patientId, doctorId).getBody();
+        List<TreatmentEntity> treatmentEntities = treatmentRepository.findTreatmentEntityByDoctorIdAndPatientId(doctorId, patientId);
+        for (TreatmentEntity treatmentEntity : treatmentEntities) {
+            for (int j = 0; j < appointmentFromServer.length; j++) {
+                if (treatmentEntity.getStartDate().isBefore(appointmentFromServer[j].getDate()) && treatmentEntity.getEndDate().isAfter(appointmentFromServer[j].getDate())) {
+                    int finalJ = j;
+                    if (treatmentEntity.getAppointment().stream().noneMatch(n -> n.getOtherId() == appointmentFromServer[finalJ].getId())) {
+                        setForSave.add(appointmentFromServer[j]);
+                        idOfTreat = treatmentEntity.getId();
+                    }
                 }
             }
+        }
+        for (AppointmentCalendarDto dto : setForSave) {
+            appointmentService.saveAppointment(new Appointment(dto), idOfTreat);
         }
         List<TreatmentDto> result = new ArrayList<>();
         for (TreatmentEntity treatmentElement : treatmentEntities) {
@@ -200,7 +207,7 @@ public class TreatmentService {
 
     public List<TreatmentEntity> getAllTreatmentsByPatientIdAndRangeDates(LocalDate beforeDate, LocalDate afterDate, Long patientId, int numberOfPage, int countItems) {
         Pageable pageable = PageRequest.of(numberOfPage, countItems);
-        return treatmentRepository.findAllByStartDateGreaterThanEqualAndEndDateLessThanEqualAndPatientIdIs(beforeDate, afterDate, patientId,pageable);
+        return treatmentRepository.findAllByStartDateGreaterThanEqualAndEndDateLessThanEqualAndPatientIdIs(beforeDate, afterDate, patientId, pageable);
     }
 
     public List<TreatmentEntity> getAllTreatmentsByPatientIdAndRangeDates(LocalDate beforeDate, LocalDate afterDate, Long patientId) {

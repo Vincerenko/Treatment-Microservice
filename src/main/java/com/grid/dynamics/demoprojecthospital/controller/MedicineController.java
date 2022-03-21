@@ -28,7 +28,7 @@ public class MedicineController {
     @ResponseStatus(HttpStatus.CREATED)
     public void saveNewMedicine(@RequestBody Medicine medicine, @PathVariable(name = "treatmentId") Long treatmentId) {
         try {
-            medicineService.saveMedicine(medicine, treatmentId);
+            medicineService.saveCustomMedicine(medicine, treatmentId);
         } catch (RuntimeException e) {
             throw new ApiRequestExceptionTreatment("Something is going wrong, medicine wasn't saved, maybe your medicine.treatment_id doesn't match with main treatment.id");
         }

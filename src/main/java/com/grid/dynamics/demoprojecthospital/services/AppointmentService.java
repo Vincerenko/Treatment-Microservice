@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final TreatmentRepository treatmentRepository;
-    private final CalendarServiceApi calendarServiceApi;
 
     public void saveAppointment(Appointment appointment, Long treatmentId) {
         TreatmentEntity treatmentEntity = new TreatmentEntity();

@@ -1,4 +1,4 @@
-package com.grid.dynamics.demoprojecthospital.models.pdmModel;
+package com.grid.dynamics.demoprojecthospital.models.wrapper;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

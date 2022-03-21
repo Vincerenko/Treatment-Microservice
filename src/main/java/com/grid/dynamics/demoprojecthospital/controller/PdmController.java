@@ -2,7 +2,7 @@ package com.grid.dynamics.demoprojecthospital.controller;
 
 import com.grid.dynamics.demoprojecthospital.adapter.PdmAdapter;
 import com.grid.dynamics.demoprojecthospital.models.enums.PdmURL;
-import com.grid.dynamics.demoprojecthospital.models.pdmModel.Doctor;
+import com.grid.dynamics.demoprojecthospital.models.wrapper.Doctor;
 import com.grid.dynamics.demoprojecthospital.services.api.PdmPatientApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,6 @@ public class PdmController {
 
     @GetMapping("/doctor/{doctorId}")
     public Doctor getDoctorFromPdmServer(@PathVariable(name = "doctorId") Long doctorId){
-
         return pdmAdapter.getResponseEntity(token, PdmURL.GET_DOCTOR,null,Doctor.class,doctorId).getBody();
     }
 }
