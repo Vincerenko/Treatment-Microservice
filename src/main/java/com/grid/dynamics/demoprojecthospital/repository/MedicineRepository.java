@@ -23,5 +23,5 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long> {
 
     @Modifying
     @Query("update medicine e set e.count = :count+e.count where e.otherId = :id")
-    void updateMedicineCount(@Param(value = "id") Long id);
+    void updateMedicineCount(@Param(value = "count") int count,@Param(value = "id") Long id);
 }

@@ -1,6 +1,7 @@
 package com.grid.dynamics.demoprojecthospital.adapter;
 
-import com.grid.dynamics.demoprojecthospital.models.enums.PdmURL;
+import com.grid.dynamics.demoprojecthospital.models.enums.MicroserviceURLS;
+import com.grid.dynamics.demoprojecthospital.models.enums.PdmEndpoints;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,13 +17,13 @@ public class PdmAdapter {
     private final static String serviceResourceUrl = "https://pdm-service.herokuapp.com";
     private final RestTemplate restTemplate;
 
-    public  <T, V> ResponseEntity<T> getResponseEntity(String authorization, PdmURL url, V body, Class<T> returnType, Object... params) {
+    public <T, V> ResponseEntity<T> getResponseEntity(MicroserviceURLS serviceResourceUrl, String authorization, PdmEndpoints url, V body, Class<T> returnType, Object... params) {
         String path = String.format(url.getPath(), params);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authorization);
 
         HttpEntity<V> requestEntity = new HttpEntity<>(body, headers);
 
-        return restTemplate.exchange(serviceResourceUrl + path, HttpMethod.GET, requestEntity, returnType);
+        return restTemplate.exchange(serviceResourceUrl.getPath() + path, HttpMethod.GET, requestEntity, returnType);
     }
 }

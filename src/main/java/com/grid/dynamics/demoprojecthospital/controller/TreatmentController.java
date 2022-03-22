@@ -4,6 +4,8 @@ import com.grid.dynamics.demoprojecthospital.dto.TreatmentDto;
 import com.grid.dynamics.demoprojecthospital.dto.TreatmentSaveDto;
 import com.grid.dynamics.demoprojecthospital.exceptions.ApiRequestExceptionTreatment;
 import com.grid.dynamics.demoprojecthospital.models.TreatmentEntity;
+import com.grid.dynamics.demoprojecthospital.models.enums.UserRole;
+import com.grid.dynamics.demoprojecthospital.services.AuthService;
 import com.grid.dynamics.demoprojecthospital.services.TreatmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,7 +27,7 @@ import java.util.List;
 public class TreatmentController {
     private final String responseWithoutID = "Don't have any treatments with this id: %s";
     private final String didntCreate = "Something is going wrong, treatment didn't create.";
-
+    private final AuthService authService;
     private final TreatmentService treatmentService;
 
 
@@ -125,8 +127,13 @@ public class TreatmentController {
     @PostMapping("/treatments")
     @ResponseStatus(HttpStatus.CREATED)
     public void saveNewTreatment(@RequestBody TreatmentSaveDto treatmentSaveDto) {
-        if (!treatmentService.saveTreatment(treatmentSaveDto)) {
-            throw new ApiRequestExceptionTreatment(didntCreate);
+        if (authService.verifyRole(UserRole.DOCTOR)) {
+            if (!treatmentService.saveTreatment(treatmentSaveDto)) {
+                throw new ApiRequestExceptionTreatment(didntCreate);
+            }
+        }
+        else {
+            throw new ApiRequestExceptionTreatment("Sorry, but you don't have any treatments by your range of time with id, or your range of date.");
         }
     }
 

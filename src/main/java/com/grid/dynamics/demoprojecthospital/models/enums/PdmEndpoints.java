@@ -1,14 +1,12 @@
 package com.grid.dynamics.demoprojecthospital.models.enums;
 
-public enum PdmURL{
+public enum PdmEndpoints {
     GET_ALL_PATIENTS_BY_DOCTOR("/doctor/%d/patients")
-    ,GET_DOCTOR("/doctor/%d")
-    ,GET_PATIENT("/patient/%d")
-    ,ROLE("auth/role");
+    ,GET_ROLE_BY_TOKEN("/auth/role");
 
     private String path;
 
-    PdmURL(String path){
+    PdmEndpoints(String path){
         this.path = path;
     }
 

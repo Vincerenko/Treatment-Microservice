@@ -1,27 +1,13 @@
 package com.grid.dynamics.demoprojecthospital.services.api;
 
-import com.ctc.wstx.shaded.msv_core.util.Uri;
-import com.grid.dynamics.demoprojecthospital.adapter.PdmAdapter;
-import com.grid.dynamics.demoprojecthospital.models.enums.PdmURL;
 import com.grid.dynamics.demoprojecthospital.models.wrapper.AppointmentCalendarDto;
-import com.grid.dynamics.demoprojecthospital.models.wrapper.AppointmentsCalendars;
-import com.grid.dynamics.demoprojecthospital.models.wrapper.Doctor;
-import com.grid.dynamics.demoprojecthospital.utils.HeaderService;
-import io.swagger.v3.oas.annotations.headers.Header;
+import com.grid.dynamics.demoprojecthospital.services.HeaderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

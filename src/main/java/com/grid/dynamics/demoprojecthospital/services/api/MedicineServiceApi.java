@@ -1,7 +1,7 @@
 package com.grid.dynamics.demoprojecthospital.services.api;
 
 import com.grid.dynamics.demoprojecthospital.models.wrapper.MedicineDto;
-import com.grid.dynamics.demoprojecthospital.utils.HeaderService;
+import com.grid.dynamics.demoprojecthospital.services.HeaderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;

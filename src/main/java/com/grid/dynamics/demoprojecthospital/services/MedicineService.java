@@ -42,7 +42,7 @@ public class MedicineService {
         MedicineDto medicineDto = medicineServiceApi.getMedicineById(medicineId);
         Medicine medicine = new Medicine(medicineDto);
         if (medicineRepository.existsByOtherId(medicineId)) {
-            medicineRepository.updateMedicineCount(medicineId);
+            medicineRepository.updateMedicineCount(medicine.getCount(),medicineId);
             treatmentRepository.updateTreatmentPriceById(medicine.getPrice() * medicine.getCount(), treatmentId);
 
         }else {
