@@ -29,12 +29,12 @@ public class TreatmentController {
     private final String didntCreate = "Something is going wrong, treatment didn't create.";
     private final String wrongVerification = "Sorry, but you dont have access to this page";
     private final String dontHaveCurrencyExchange = "Sorry, but temporarily application doesn't have access to up-to-date course exchange (USD,EUR,RUB). You should request UAH.";
+    private final String notFoundTreatments = "No such any treatments.";
     private final AuthService authService;
     private final TreatmentService treatmentService;
 
-
     /**
-     * @param id is demanding id of Patient.
+     * @param id           is demanding id of Patient.
      * @param numberOfPage number of page which will contain
      * @param countOfItems this parameter responsible for the numbers of items on page
      * @return all Treatments of received id of Patient.
@@ -42,8 +42,8 @@ public class TreatmentController {
      */
 
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "treatments sent"),
-            @ApiResponse(responseCode = "404", description = "Don't have any treatments")})
+            @ApiResponse(responseCode = "200", description = "Treatments were sent"),
+            @ApiResponse(responseCode = "404", description = "No such any treatments.")})
     @Operation(summary = "Get treatments by patient id",
             description = "Get all treatments from patient history with currency UAH and with pageable")
 
@@ -62,13 +62,13 @@ public class TreatmentController {
     }
 
     /**
-     * @param id is demanding id of Patient.
+     * @param id       is demanding id of Patient.
      * @param currency receive type of currency, after that will be returned result price in currency that was requested (receive only: "USD", "EUR","RUB","UAH")
      * @return all Treatments of received id of Patient with needed currency.
      */
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "treatments sent"),
-            @ApiResponse(responseCode = "404", description = "Don't have any treatments")})
+            @ApiResponse(responseCode = "404", description = "No such any treatments.")})
     @Operation(summary = "Get treatments by id with currency", description = "Get all treatments from patient history with currency USD, RUB or EUR without pageable")
 
     @ResponseStatus(HttpStatus.OK)
@@ -89,17 +89,16 @@ public class TreatmentController {
     }
 
     /**
-     *
-     * @param id patientId
-     * @param currency type of currency, client can write "USD", "RUB" or "EUR" or native currency "UAH"
+     * @param id           patientId
+     * @param currency     type of currency, client can write "USD", "RUB" or "EUR" or native currency "UAH"
      * @param numberOfPage this variable responsible for number of page
      * @param countOfItems this variable responsible for volume of items on page
      * @return list of treatments by patientId with requested currency and pageable
      */
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "treatments sent"),
-            @ApiResponse(responseCode = "404", description = "Don't have any treatments")})
-    @Operation(summary = "Get treatments by id with currency", description = "Get all treatments from patient history with currency USD, RUB or EUR")
+            @ApiResponse(responseCode = "404", description = "No such any treatments.")})
+    @Operation(summary = "Get treatments by id with currency", description = "Get all treatments from patient history with currency USD, RUB or EUR and pageable")
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/treatments/{id}/{currency}/{numberOfPage}/{countOfItems}")
@@ -107,46 +106,52 @@ public class TreatmentController {
                                                                   @PathVariable(name = "currency") String currency,
                                                                   @PathVariable(name = "numberOfPage") int numberOfPage,
                                                                   @PathVariable(name = "countOfItems") int countOfItems) {
-        try {
-            List<TreatmentDto> allTreatmentsByPatientId = treatmentService.getAllTreatmentsByPatientId(id, currency, numberOfPage, countOfItems);
-            if (allTreatmentsByPatientId.isEmpty()) {
-                throw new ApiRequestExceptionTreatment(String.format(responseWithoutID, id));
+        if (authService.verifyRole(UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT)) {
+            try {
+                List<TreatmentDto> allTreatmentsByPatientId = treatmentService.getAllTreatmentsByPatientId(id, currency, numberOfPage, countOfItems);
+                if (allTreatmentsByPatientId.isEmpty()) {
+                    throw new ApiRequestExceptionTreatment(String.format(responseWithoutID, id));
+                }
+                return allTreatmentsByPatientId;
+            } catch (ResourceAccessException e) {
+                throw new ApiRequestExceptionTreatment(dontHaveCurrencyExchange);
             }
-            return allTreatmentsByPatientId;
-        } catch (ResourceAccessException e) {
-            throw new ApiRequestExceptionTreatment(dontHaveCurrencyExchange);
         }
+        throw new ApiRequestExceptionTreatment(wrongVerification);
     }
 
     /**
-     * @return all Treatments of history of hospital
+     * @return all Treatments of hospital history
      */
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "treatments sent"),
-            @ApiResponse(responseCode = "404", description = "Don't have any treatments")
+            @ApiResponse(responseCode = "404", description = "No such any treatments.")
     })
-    @Operation(summary = "get all treatments from hospital", description = "get all treatments from history of hospital")
-    @GetMapping("/treatments")
-    @ResponseStatus(HttpStatus.OK)
-    public List<TreatmentDto> getAll() {
-        List<TreatmentDto> allTreatments = treatmentService.getAllTreatments();
+    @Operation(summary = "Get all treatments from hospital", description = "Get all treatments from history of hospital")
 
-        if (allTreatments.isEmpty()) {
-            throw new ApiRequestExceptionTreatment("don't have any treatments in DataBase");
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/treatments")
+    public List<TreatmentDto> getAll() {
+        if (authService.verifyRole(UserRole.ADMIN)) {
+            if (treatmentService.getAllTreatments().isEmpty()) {
+                throw new ApiRequestExceptionTreatment(notFoundTreatments);
+            }
+            return treatmentService.getAllTreatments();
         }
-        return allTreatments;
+        throw new ApiRequestExceptionTreatment(wrongVerification);
     }
 
     /**
      * @param treatmentSaveDto - receive model "treatmentSaveDto" and save to DB.
      */
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "treatment created"),
-            @ApiResponse(responseCode = "404", description = "treatment didn't create")
+            @ApiResponse(responseCode = "201", description = "Treatment created"),
+            @ApiResponse(responseCode = "404", description = "Treatment didn't create")
     })
-    @Operation(summary = "create treatment", description = "create treatment with medicine and appointments or just treatments without medicine and appointments")
-    @PostMapping("/treatments")
+    @Operation(summary = "Create treatment", description = "Create treatment with medicine and appointments or just treatments without medicine and appointments")
+
     @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/treatments")
     public void saveNewTreatment(@RequestBody TreatmentSaveDto treatmentSaveDto) {
         if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)) {
             if (!treatmentService.saveTreatment(treatmentSaveDto)) {
@@ -161,13 +166,18 @@ public class TreatmentController {
      * @param id - receive id of treatment and delete treatment with this id.
      */
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "treatment deleted"),
+            @ApiResponse(responseCode = "200", description = "Treatment deleted"),
+            @ApiResponse(responseCode = "404", description = "Treatment didn't delete")
     })
-    @Operation(summary = "delete treatment", description = "delete treatment")
-    @DeleteMapping("/treatments/{id}")
+    @Operation(summary = "Delete treatment", description = "Delete treatment by treatmentId")
+
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/treatments/{id}")
     public void deleteTreatmentById(@PathVariable(name = "id") Long id) {
-        treatmentService.deleteById(id);
+        if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)) {
+            treatmentService.deleteById(id);
+        }
+        throw new ApiRequestExceptionTreatment(wrongVerification);
     }
 
     /**
@@ -175,59 +185,96 @@ public class TreatmentController {
      * @param status receive type of status, just like that: PREPARING("in preparing"), IN_PROGRESS("in progress"), FINISHED("finished");
      */
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "treatment deleted"),
-            @ApiResponse(responseCode = "404", description = "no such any treatments")
+            @ApiResponse(responseCode = "200", description = "Treatment status was updated"),
+            @ApiResponse(responseCode = "404", description = "Treatment status wasn't updated")
     })
-    @Operation(summary = "delete treatment", description = "delete treatment")
-    @PutMapping("treatments")
+    @Operation(summary = "Update treatment", description = "Update status treatment by treatmentId")
+
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PutMapping("treatments")
     public void updateTreatment(@RequestParam("id") Long id, @RequestParam(name = "status") String status) {
-        treatmentService.updateTreatment(status, id);
+        if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)) {
+            treatmentService.updateTreatment(status, id);
+        }
+        throw new ApiRequestExceptionTreatment(wrongVerification);
     }
 
     /**
-     * @param id         - demand PatientId
-     * @param beforeDate - demand date than will be bigger than Treatment was started
-     * @param afterDate  - demand date than will be bigger than Treatment was ended
+     * @param id           - demand PatientId
+     * @param beforeDate   - demand date than will be bigger than Treatment was started
+     * @param afterDate    - demand date than will be bigger than Treatment was ended
+     * @param numberOfPage this variable responsible for number of page
+     * @param countOfItems this variable responsible for volume of items on page
      * @return - List of TreatmentEntity by PatientId and by during after "beforeDate" and before "afterDate";
      */
-    @GetMapping("/treatments/{id}/{beforeDate}/{afterDate}/{numberOfPage}/{countOfItems}")
+
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "treatments sent"),
+            @ApiResponse(responseCode = "200", description = "Treatments sent"),
             @ApiResponse(responseCode = "404", description = "No such any treatments")})
-    @Operation(summary = "get treatments by PatientId with range of time ", description = "get all treatments from patient history with range between beforeDate and фfterDate")
+    @Operation(summary = "Get treatments by PatientId with range of time ", description = "Get all treatments from patient history with range between beforeDate and afterDate and with pageable")
+
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/treatments/{id}/{beforeDate}/{afterDate}/{numberOfPage}/{countOfItems}")
     public List<TreatmentEntity> getTreatmentByRangeOfDateWithoutPages(@PathVariable(name = "id") Long id,
                                                                        @PathVariable(name = "beforeDate") String beforeDate,
                                                                        @PathVariable(name = "afterDate") String afterDate,
                                                                        @PathVariable(name = "numberOfPage") int numberOfPage,
                                                                        @PathVariable(name = "countOfItems") int countOfItems) {
-        List<TreatmentEntity> allTreatmentsByPatientIdAndRangeDates = treatmentService.getAllTreatmentsByPatientIdAndRangeDates(LocalDate.parse(beforeDate), LocalDate.parse(afterDate), id, numberOfPage, countOfItems);
-        if (allTreatmentsByPatientIdAndRangeDates.isEmpty()) {
-            throw new ApiRequestExceptionTreatment("Sorry, but you don't have any treatments by your range of time");
+        if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN,UserRole.PATIENT)) {
+            if (treatmentService.getAllTreatmentsByPatientIdAndRangeDates(LocalDate.parse(beforeDate), LocalDate.parse(afterDate), id, numberOfPage, countOfItems).isEmpty()) {
+                throw new ApiRequestExceptionTreatment(notFoundTreatments);
+            }
+            return treatmentService.getAllTreatmentsByPatientIdAndRangeDates(LocalDate.parse(beforeDate), LocalDate.parse(afterDate), id, numberOfPage, countOfItems);
         }
-        return allTreatmentsByPatientIdAndRangeDates;
+        throw new ApiRequestExceptionTreatment(wrongVerification);
     }
 
-    @GetMapping("/treatments/{id}/{dateFirst}/{dateSecond}")
+
+    /**
+     *
+     * @param id - demand PatientId
+     * @param dateFirst - demand date than will be bigger than Treatment was started
+     * @param dateSecond - demand date than will be bigger than Treatment was ended
+     * @return - List of TreatmentEntity by PatientId and by during after "beforeDate" and before "afterDate";
+     */
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "treatments sent"),
+            @ApiResponse(responseCode = "200", description = "Treatments were sent"),
             @ApiResponse(responseCode = "404", description = "No such any treatments")})
-    @Operation(summary = "get treatments by PatientId with range of time ", description = "get all treatments from patient history with range between beforeDate and фfterDate")
+    @Operation(summary = "Get treatments by PatientId with range of time ", description = "Get all treatments from patient history with range between beforeDate and afterDate without pageable.")
+
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/treatments/{id}/{dateFirst}/{dateSecond}")
     public List<TreatmentEntity> getTreatmentByRangeOfDateWithoutPages(@PathVariable(name = "id") Long id,
                                                                        @PathVariable(name = "dateFirst") String dateFirst,
-                                                                       @PathVariable(name = "dateSecond") String dateSecond
-    ) {
-        List<TreatmentEntity> allTreatmentsByPatientIdAndRangeDates = treatmentService.getAllTreatmentsByPatientIdAndRangeDates(LocalDate.parse(dateFirst), LocalDate.parse(dateSecond), id);
-        if (allTreatmentsByPatientIdAndRangeDates.isEmpty()) {
-            throw new ApiRequestExceptionTreatment("Sorry, but you don't have any treatments by your range of time with id" + id + ", or your range of date.");
+                                                                       @PathVariable(name = "dateSecond") String dateSecond) {
+        if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN,UserRole.PATIENT)) {
+            List<TreatmentEntity> allTreatmentsByPatientIdAndRangeDates = treatmentService.getAllTreatmentsByPatientIdAndRangeDates(LocalDate.parse(dateFirst), LocalDate.parse(dateSecond), id);
+            if (allTreatmentsByPatientIdAndRangeDates.isEmpty()) {
+                throw new ApiRequestExceptionTreatment(notFoundTreatments);
+            }
+            return allTreatmentsByPatientIdAndRangeDates;
         }
-        return allTreatmentsByPatientIdAndRangeDates;
+        throw new ApiRequestExceptionTreatment(wrongVerification);
     }
 
+    /**
+     *
+     * @param patientId demand patientId
+     * @param doctorId demand doctorId
+     * @return treatment with up-to-date appointments
+     */
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Treatment was updated"),
+            @ApiResponse(responseCode = "404", description = "No such any treatments")})
+    @Operation(summary = "Get up-to-date treatment by patientId and doctorId",
+            description = "Get treatment from patient history with range between beforeDate and afterDate without pageable and with up-to-date appointments.")
+
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/treatment/{patientId}/{doctorId}")
     public List<TreatmentEntity> getFreshTreatments(@PathVariable(name = "patientId") Long patientId, @PathVariable(name = "doctorId") Long doctorId) {
-        return treatmentService.getAllTreatmentsByPatientIdAndDoctorId(patientId, doctorId);
+        if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN,UserRole.PATIENT)) {
+            return treatmentService.getAllTreatmentsByPatientIdAndDoctorId(patientId, doctorId);
+        }
+        throw new ApiRequestExceptionTreatment(wrongVerification);
     }
 }

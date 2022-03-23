@@ -22,7 +22,7 @@ class ScheduleControllerTest {
     void saveNewTreatment() {
         Schedule schedule = new Schedule();
         Mockito.doNothing().when(scheduleService).createNewSchedule(schedule);
-        scheduleController.saveNewTreatment(schedule);
+        scheduleController.saveNewSchedule(schedule);
     }
 
     @Test

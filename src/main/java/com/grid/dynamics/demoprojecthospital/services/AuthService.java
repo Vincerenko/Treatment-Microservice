@@ -32,6 +32,7 @@ public class AuthService {
                 break;
             }
         }
+        log.info("Expected roles role is : {}",expectedRole);
         return result;
     }
 }
