@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AppointmentController {
     private final AppointmentService appointmentService;
-    private final TreatmentRepository treatmentRepository;
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "appointment created"),
@@ -25,7 +24,7 @@ public class AppointmentController {
     @Operation(summary = "create appointment", description = "create appointment and calc sum which will be connected to treatment bu treatment_id")
     @PostMapping("/appointments/{treatmentId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void saveNewAppointment(@RequestBody Appointment appointment, @PathVariable(name = "treatmentId") Long treatmentId) throws ApiRequestExceptionTreatment{
+    public void saveNewAppointment(@RequestBody Appointment appointment, @PathVariable(name = "treatmentId") Long treatmentId) throws ApiRequestExceptionTreatment {
         try {
             appointmentService.saveAppointment(appointment, treatmentId);
         } catch (RuntimeException e) {

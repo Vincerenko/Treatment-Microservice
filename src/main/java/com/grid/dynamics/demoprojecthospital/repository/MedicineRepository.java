@@ -1,7 +1,6 @@
 package com.grid.dynamics.demoprojecthospital.repository;
 
 import com.grid.dynamics.demoprojecthospital.models.Medicine;
-import com.grid.dynamics.demoprojecthospital.models.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,5 +22,5 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long> {
 
     @Modifying
     @Query("update medicine e set e.count = :count+e.count where e.otherId = :id")
-    void updateMedicineCount(@Param(value = "count") int count,@Param(value = "id") Long id);
+    void updateMedicineCount(@Param(value = "count") int count, @Param(value = "id") Long id);
 }

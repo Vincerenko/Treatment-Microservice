@@ -27,60 +27,82 @@ import java.util.List;
 public class TreatmentController {
     private final String responseWithoutID = "Don't have any treatments with this id: %s";
     private final String didntCreate = "Something is going wrong, treatment didn't create.";
+    private final String wrongVerification = "Sorry, but you dont have access to this page";
+    private final String dontHaveCurrencyExchange = "Sorry, but temporarily application doesn't have access to up-to-date course exchange (USD,EUR,RUB). You should request UAH.";
     private final AuthService authService;
     private final TreatmentService treatmentService;
 
 
     /**
      * @param id is demanding id of Patient.
+     * @param numberOfPage number of page which will contain
+     * @param countOfItems this parameter responsible for the numbers of items on page
      * @return all Treatments of received id of Patient.
      * This method receive id of Patient and return all treatments that patient with this id has.
      */
-    @GetMapping("/treatments/")
+
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "treatments sent"),
             @ApiResponse(responseCode = "404", description = "Don't have any treatments")})
-    @Operation(summary = "get treatments by patient id", description = "get all treatments from patient history with currency UAH")
+    @Operation(summary = "Get treatments by patient id",
+            description = "Get all treatments from patient history with currency UAH and with pageable")
+
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/treatments/")
     public List<TreatmentDto> getTreatment(@RequestParam Long id,
                                            @RequestParam int numberOfPage,
                                            @RequestParam int countOfItems) {
-        if (treatmentService.getAllTreatmentsByPatientId(id, numberOfPage, countOfItems).isEmpty()) {
-            throw new ApiRequestExceptionTreatment(String.format(responseWithoutID, id));
+        if (authService.verifyRole(UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT)) {
+            if (treatmentService.getAllTreatmentsByPatientId(id, numberOfPage, countOfItems).isEmpty()) {
+                throw new ApiRequestExceptionTreatment(String.format(responseWithoutID, id));
+            }
+            return treatmentService.getAllTreatmentsByPatientId(id, numberOfPage, countOfItems);
         }
-        return treatmentService.getAllTreatmentsByPatientId(id, numberOfPage, countOfItems);
+        throw new ApiRequestExceptionTreatment(wrongVerification);
     }
 
     /**
-     * @param id       is demanding id of Patient.
+     * @param id is demanding id of Patient.
      * @param currency receive type of currency, after that will be returned result price in currency that was requested (receive only: "USD", "EUR","RUB","UAH")
      * @return all Treatments of received id of Patient with needed currency.
      */
-    @GetMapping("/treatments/{id}/{currency}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "treatments sent"),
             @ApiResponse(responseCode = "404", description = "Don't have any treatments")})
-    @Operation(summary = "get treatments by id with currency", description = "get all treatments from patient history with currency USD, RUB or EUR")
-    @ResponseStatus(HttpStatus.OK)
-    public List<TreatmentDto> getTreatmentWithCurrencyByPatientId(@PathVariable(name = "id") Long id, @PathVariable(name = "currency") String currency) {
-        try {
-            List<TreatmentDto> allTreatmentsByPatientId = treatmentService.getAllTreatmentsByPatientId(id, currency);
-            if (allTreatmentsByPatientId.isEmpty()) {
-                throw new ApiRequestExceptionTreatment(String.format(responseWithoutID, id));
-            }
-            return allTreatmentsByPatientId;
-        } catch (ResourceAccessException e) {
-            throw new ApiRequestExceptionTreatment("Sorry, but temporarily apps doesn't have access to up-to-date course exchange (USD,EUR,RUB). You should request UAH.");
-        }
+    @Operation(summary = "Get treatments by id with currency", description = "Get all treatments from patient history with currency USD, RUB or EUR without pageable")
 
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/treatments/{id}/{currency}")
+    public List<TreatmentDto> getTreatmentWithCurrencyByPatientId(@PathVariable(name = "id") Long id, @PathVariable(name = "currency") String currency) {
+        if (authService.verifyRole(UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT)) {
+            try {
+                List<TreatmentDto> allTreatmentsByPatientId = treatmentService.getAllTreatmentsByPatientId(id, currency);
+                if (allTreatmentsByPatientId.isEmpty()) {
+                    throw new ApiRequestExceptionTreatment(String.format(responseWithoutID, id));
+                }
+                return allTreatmentsByPatientId;
+            } catch (ResourceAccessException e) {
+                throw new ApiRequestExceptionTreatment(dontHaveCurrencyExchange);
+            }
+        }
+        throw new ApiRequestExceptionTreatment(wrongVerification);
     }
 
-    @GetMapping("/treatments/{id}/{currency}/{numberOfPage}/{countOfItems}")
+    /**
+     *
+     * @param id patientId
+     * @param currency type of currency, client can write "USD", "RUB" or "EUR" or native currency "UAH"
+     * @param numberOfPage this variable responsible for number of page
+     * @param countOfItems this variable responsible for volume of items on page
+     * @return list of treatments by patientId with requested currency and pageable
+     */
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "treatments sent"),
             @ApiResponse(responseCode = "404", description = "Don't have any treatments")})
-    @Operation(summary = "get treatments by id with currency", description = "get all treatments from patient history with currency USD, RUB or EUR")
+    @Operation(summary = "Get treatments by id with currency", description = "Get all treatments from patient history with currency USD, RUB or EUR")
+
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/treatments/{id}/{currency}/{numberOfPage}/{countOfItems}")
     public List<TreatmentDto> getTreatmentWithCurrencyByPatientId(@PathVariable(name = "id") Long id,
                                                                   @PathVariable(name = "currency") String currency,
                                                                   @PathVariable(name = "numberOfPage") int numberOfPage,
@@ -92,9 +114,8 @@ public class TreatmentController {
             }
             return allTreatmentsByPatientId;
         } catch (ResourceAccessException e) {
-            throw new ApiRequestExceptionTreatment("Sorry, but temporarily apps doesn't have access to up-to-date course exchange (USD,EUR,RUB). You should request UAH.");
+            throw new ApiRequestExceptionTreatment(dontHaveCurrencyExchange);
         }
-
     }
 
     /**
@@ -127,13 +148,12 @@ public class TreatmentController {
     @PostMapping("/treatments")
     @ResponseStatus(HttpStatus.CREATED)
     public void saveNewTreatment(@RequestBody TreatmentSaveDto treatmentSaveDto) {
-        if (authService.verifyRole(UserRole.DOCTOR)) {
+        if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)) {
             if (!treatmentService.saveTreatment(treatmentSaveDto)) {
                 throw new ApiRequestExceptionTreatment(didntCreate);
             }
-        }
-        else {
-            throw new ApiRequestExceptionTreatment("Sorry, but you don't have any treatments by your range of time with id, or your range of date.");
+        } else {
+            throw new ApiRequestExceptionTreatment(wrongVerification);
         }
     }
 
@@ -207,7 +227,7 @@ public class TreatmentController {
     }
 
     @GetMapping("/treatment/{patientId}/{doctorId}")
-    public List<TreatmentEntity> getFreshTreatments(@PathVariable(name = "patientId")Long patientId,@PathVariable(name = "doctorId") Long doctorId){
-        return treatmentService.getAllTreatmentsByPatientIdAndDoctorId(patientId,doctorId);
+    public List<TreatmentEntity> getFreshTreatments(@PathVariable(name = "patientId") Long patientId, @PathVariable(name = "doctorId") Long doctorId) {
+        return treatmentService.getAllTreatmentsByPatientIdAndDoctorId(patientId, doctorId);
     }
 }

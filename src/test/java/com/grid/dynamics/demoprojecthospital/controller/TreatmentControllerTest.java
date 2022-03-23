@@ -5,6 +5,8 @@ import com.grid.dynamics.demoprojecthospital.dto.TreatmentSaveDto;
 import com.grid.dynamics.demoprojecthospital.exceptions.ApiRequestExceptionTreatment;
 import com.grid.dynamics.demoprojecthospital.models.TreatmentEntity;
 import com.grid.dynamics.demoprojecthospital.models.enums.Status;
+import com.grid.dynamics.demoprojecthospital.models.enums.UserRole;
+import com.grid.dynamics.demoprojecthospital.services.AuthService;
 import com.grid.dynamics.demoprojecthospital.services.TreatmentService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -26,18 +29,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class TreatmentControllerTest {
     @Mock
     private TreatmentService treatmentService;
+    @Mock
+    private AuthService authService;
     @InjectMocks
     private TreatmentController treatmentController;
-
-//    @Test
-//    void ShouldGetTreatment() {
-//        TreatmentDto treatmentDto = new TreatmentDto();
-//        List<TreatmentDto> expected = List.of(treatmentDto);
-//        Mockito.when(treatmentService.getAllTreatmentsByPatientId(1L)).thenReturn(expected);
-//        List<TreatmentDto> actual = treatmentController.getTreatment(1L);
-//        assertDoesNotThrow(() -> SQLException.class);
-//        assertEquals(expected, actual);
-//    }
 
     @Test
     void ShouldThrowExceptionWhenGetTreatment() {
@@ -85,6 +80,7 @@ class TreatmentControllerTest {
 
     @Test
     void ShouldSaveNewTreatment() {
+        Mockito.when(authService.verifyRole(UserRole.DOCTOR,UserRole.ADMIN)).thenReturn(true);
         TreatmentSaveDto treatmentSaveDto = new TreatmentSaveDto();
         Mockito.when(treatmentService.saveTreatment(treatmentSaveDto)).thenReturn(true);
         treatmentController.saveNewTreatment(treatmentSaveDto);
@@ -92,6 +88,7 @@ class TreatmentControllerTest {
 
     @Test
     void ShouldThrowExceptionWhenSaveNewTreatment() {
+        Mockito.when(authService.verifyRole(UserRole.DOCTOR,UserRole.ADMIN)).thenReturn(true);
         Mockito.when(treatmentService.saveTreatment(null)).thenReturn(false);
         assertThrows(ApiRequestExceptionTreatment.class, () -> treatmentController.saveNewTreatment(null));
     }

@@ -2,7 +2,6 @@ package com.grid.dynamics.demoprojecthospital.repository;
 
 import com.grid.dynamics.demoprojecthospital.models.TreatmentEntity;
 import com.grid.dynamics.demoprojecthospital.models.enums.Status;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,6 +28,7 @@ public interface TreatmentRepository extends JpaRepository<TreatmentEntity, Long
      * @return return list of treatments that match treatments.patient_id == patientId (param)
      */
     List<TreatmentEntity> findAllByPatientId(Long patientId);
+
     List<TreatmentEntity> findAllByPatientId(Long patientId, Pageable pageable);
 
     /**
@@ -60,6 +60,7 @@ public interface TreatmentRepository extends JpaRepository<TreatmentEntity, Long
                                                                                                   LocalDate afterDate,
                                                                                                   Long patientId,
                                                                                                   Pageable pageable);
+
     List<TreatmentEntity> findAllByStartDateGreaterThanEqualAndEndDateLessThanEqualAndPatientIdIs(LocalDate beforeDate,
                                                                                                   LocalDate afterDate,
                                                                                                   Long patientId);

@@ -7,7 +7,6 @@ import com.grid.dynamics.demoprojecthospital.repository.MedicineRepository;
 import com.grid.dynamics.demoprojecthospital.repository.TreatmentRepository;
 import com.grid.dynamics.demoprojecthospital.services.api.MedicineServiceApi;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,10 +41,10 @@ public class MedicineService {
         MedicineDto medicineDto = medicineServiceApi.getMedicineById(medicineId);
         Medicine medicine = new Medicine(medicineDto);
         if (medicineRepository.existsByOtherId(medicineId)) {
-            medicineRepository.updateMedicineCount(medicine.getCount(),medicineId);
+            medicineRepository.updateMedicineCount(medicine.getCount(), medicineId);
             treatmentRepository.updateTreatmentPriceById(medicine.getPrice() * medicine.getCount(), treatmentId);
 
-        }else {
+        } else {
             TreatmentEntity treatmentEntity = new TreatmentEntity();
             treatmentEntity.setId(treatmentId);
             medicine.setTreatment(treatmentEntity);

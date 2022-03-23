@@ -3,7 +3,10 @@ package com.grid.dynamics.demoprojecthospital.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grid.dynamics.demoprojecthospital.models.wrapper.AppointmentCalendarDto;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -41,12 +44,12 @@ public class Appointment implements Serializable {
     @ToString.Exclude
     private TreatmentEntity treatment;
 
-    public Appointment(AppointmentCalendarDto appointmentCalendarDto){
-        this.otherId= appointmentCalendarDto.getId();
-        this.name= appointmentCalendarDto.getTitle();
-        this.price= appointmentCalendarDto.getCost();
-        this.meetDate=LocalDateTime.of(appointmentCalendarDto.getDate(),appointmentCalendarDto.getFromTime());
-        this.count=1;
+    public Appointment(AppointmentCalendarDto appointmentCalendarDto) {
+        this.otherId = appointmentCalendarDto.getId();
+        this.name = appointmentCalendarDto.getTitle();
+        this.price = appointmentCalendarDto.getCost();
+        this.meetDate = LocalDateTime.of(appointmentCalendarDto.getDate(), appointmentCalendarDto.getFromTime());
+        this.count = 1;
     }
 
     public Appointment(Long id, String name, Double price, Integer count, LocalDateTime meetDate, TreatmentEntity treatment) {

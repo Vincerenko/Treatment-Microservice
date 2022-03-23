@@ -3,7 +3,6 @@ package com.grid.dynamics.demoprojecthospital.services.api;
 import com.grid.dynamics.demoprojecthospital.models.Currency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 

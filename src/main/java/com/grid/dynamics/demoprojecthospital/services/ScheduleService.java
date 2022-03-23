@@ -3,7 +3,6 @@ package com.grid.dynamics.demoprojecthospital.services;
 import com.grid.dynamics.demoprojecthospital.models.Schedule;
 import com.grid.dynamics.demoprojecthospital.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service

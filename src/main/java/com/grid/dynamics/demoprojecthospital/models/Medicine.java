@@ -39,7 +39,7 @@ public class Medicine implements Serializable {
     @ToString.Exclude
     private TreatmentEntity treatment;
 
-    public Medicine(MedicineDto medicineDto){
+    public Medicine(MedicineDto medicineDto) {
         this.otherId = medicineDto.getId();
         this.name = medicineDto.getName();
         this.price = medicineDto.getPrice();

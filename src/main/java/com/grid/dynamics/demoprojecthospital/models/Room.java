@@ -17,12 +17,12 @@ public class Room {
     /**
      * The RoomDTO class represents the room DTO.
      */
-        private Long roomId;
-        private Long hospitalId;
-        private int numberRoom;
-        private int numberFloor;
-        private String description;
-        private boolean bookingStatus = false;
+    private Long roomId;
+    private Long hospitalId;
+    private int numberRoom;
+    private int numberFloor;
+    private String description;
+    private boolean bookingStatus = false;
 
     @Setter
     @Getter

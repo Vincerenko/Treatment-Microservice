@@ -4,7 +4,6 @@ import com.grid.dynamics.demoprojecthospital.models.Appointment;
 import com.grid.dynamics.demoprojecthospital.models.TreatmentEntity;
 import com.grid.dynamics.demoprojecthospital.repository.AppointmentRepository;
 import com.grid.dynamics.demoprojecthospital.repository.TreatmentRepository;
-import com.grid.dynamics.demoprojecthospital.services.api.CalendarServiceApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

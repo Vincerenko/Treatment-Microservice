@@ -13,17 +13,13 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 @Component
 public class PdmAdapter {
-
-    private final static String serviceResourceUrl = "https://pdm-service.herokuapp.com";
     private final RestTemplate restTemplate;
 
     public <T, V> ResponseEntity<T> getResponseEntity(MicroserviceURLS serviceResourceUrl, String authorization, PdmEndpoints url, V body, Class<T> returnType, Object... params) {
         String path = String.format(url.getPath(), params);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authorization);
-
         HttpEntity<V> requestEntity = new HttpEntity<>(body, headers);
-
         return restTemplate.exchange(serviceResourceUrl.getPath() + path, HttpMethod.GET, requestEntity, returnType);
     }
 }
