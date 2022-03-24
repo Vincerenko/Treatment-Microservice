@@ -26,6 +26,8 @@ public class Appointment implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonProperty
     private Long id;
+    @JsonProperty
+    @Column(nullable = false)
     private Long otherId;
     @JsonProperty
     @Column(nullable = false)

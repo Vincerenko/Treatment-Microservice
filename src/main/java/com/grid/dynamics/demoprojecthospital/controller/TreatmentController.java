@@ -53,12 +53,16 @@ public class TreatmentController {
                                            @RequestParam int numberOfPage,
                                            @RequestParam int countOfItems) {
         if (authService.verifyRole(UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT)) {
-            if (treatmentService.getAllTreatmentsByPatientId(id, numberOfPage, countOfItems).isEmpty()) {
+            try {
+                return treatmentService.getAllTreatmentsByPatientId(id, numberOfPage, countOfItems);
+            }
+            catch (RuntimeException e){
                 throw new ApiRequestExceptionTreatment(String.format(responseWithoutID, id));
             }
-            return treatmentService.getAllTreatmentsByPatientId(id, numberOfPage, countOfItems);
         }
-        throw new ApiRequestExceptionTreatment(wrongVerification);
+        else {
+            throw new ApiRequestExceptionTreatment(wrongVerification);
+        }
     }
 
     /**
@@ -177,7 +181,9 @@ public class TreatmentController {
         if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)) {
             treatmentService.deleteById(id);
         }
-        throw new ApiRequestExceptionTreatment(wrongVerification);
+        else {
+            throw new ApiRequestExceptionTreatment(wrongVerification);
+        }
     }
 
     /**
@@ -196,7 +202,9 @@ public class TreatmentController {
         if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)) {
             treatmentService.updateTreatment(status, id);
         }
-        throw new ApiRequestExceptionTreatment(wrongVerification);
+        else {
+            throw new ApiRequestExceptionTreatment(wrongVerification);
+        }
     }
 
     /**

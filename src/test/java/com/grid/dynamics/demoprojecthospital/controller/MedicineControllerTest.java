@@ -2,6 +2,8 @@ package com.grid.dynamics.demoprojecthospital.controller;
 
 import com.grid.dynamics.demoprojecthospital.exceptions.ApiRequestExceptionTreatment;
 import com.grid.dynamics.demoprojecthospital.models.Medicine;
+import com.grid.dynamics.demoprojecthospital.models.enums.UserRole;
+import com.grid.dynamics.demoprojecthospital.services.AuthService;
 import com.grid.dynamics.demoprojecthospital.services.MedicineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,18 +18,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(MockitoExtension.class)
 class MedicineControllerTest {
     @Mock
+    private AuthService authService;
+    @Mock
     private MedicineService medicineService;
     @InjectMocks
     private MedicineController medicineController;
 
     @Test
     void ShouldNewAppointment() {
+        Mockito.when(authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)).thenReturn(true);
         Mockito.doNothing().when(medicineService).saveCustomMedicine(new Medicine(), 1L);
         medicineController.saveNewMedicine(new Medicine(), 1L);
     }
 
     @Test
     void checkThrowException() throws ApiRequestExceptionTreatment {
+        Mockito.when(authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)).thenReturn(true);
         Mockito.doNothing().when(medicineService).saveCustomMedicine(new Medicine(), 1L);
         Assertions.assertThrows(ApiRequestExceptionTreatment.class, () ->
             medicineController.saveNewMedicine(null,1L));

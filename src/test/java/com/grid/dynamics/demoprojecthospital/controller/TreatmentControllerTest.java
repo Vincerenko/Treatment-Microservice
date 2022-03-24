@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.exceptions.misusing.PotentialStubbingProblem;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -42,6 +43,7 @@ class TreatmentControllerTest {
 
     @Test
     void getTreatmentWithCurrencyByPatientId() {
+        Mockito.when(authService.verifyRole(UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT)).thenReturn(true);
         TreatmentDto treatmentDto = new TreatmentDto();
         List<TreatmentDto> expected = List.of(treatmentDto);
         Mockito.when(treatmentService.getAllTreatmentsByPatientId(1L, "USD")).thenReturn(expected);
@@ -51,6 +53,7 @@ class TreatmentControllerTest {
 
     @Test
     void ShouldThrowExceptionWhenGetTreatmentWithCurrencyByPatientId() {
+        Mockito.when(authService.verifyRole(UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT)).thenReturn(true);
         List<TreatmentDto> treatmentDtos = new ArrayList<>();
         Mockito.when(treatmentService.getAllTreatmentsByPatientId(1L, "USD")).thenReturn(treatmentDtos);
         assertThrows(ApiRequestExceptionTreatment.class, () -> treatmentController.getTreatmentWithCurrencyByPatientId(1L, "USD"));
@@ -58,12 +61,14 @@ class TreatmentControllerTest {
 
     @Test
     void ShouldThrowExceptionWhenGetTreatmentWithCurrencyByPatientIdAndDoesntHaveAccessToApiBank() {
+        Mockito.when(authService.verifyRole(UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT)).thenReturn(true);
         Mockito.when(treatmentService.getAllTreatmentsByPatientId(1L, "USD")).thenThrow(ResourceAccessException.class);
         assertThrows(ApiRequestExceptionTreatment.class, () -> treatmentController.getTreatmentWithCurrencyByPatientId(1L, "USD"));
     }
 
     @Test
     void ShouldGetAll() {
+        Mockito.when(authService.verifyRole(UserRole.ADMIN)).thenReturn(true);
         TreatmentDto treatmentDto = new TreatmentDto();
         List<TreatmentDto> expected = List.of(treatmentDto);
         Mockito.when(treatmentService.getAllTreatments()).thenReturn(expected);
@@ -73,6 +78,7 @@ class TreatmentControllerTest {
 
     @Test
     void ShouldThrowExceptionWhenGetAll() {
+        Mockito.when(authService.verifyRole(UserRole.ADMIN)).thenReturn(true);
         List<TreatmentDto> expected = new ArrayList<>();
         Mockito.when(treatmentService.getAllTreatments()).thenReturn(expected);
         assertThrows(ApiRequestExceptionTreatment.class, () -> treatmentController.getAll());
@@ -95,18 +101,21 @@ class TreatmentControllerTest {
 
     @Test
     void ShouldDeleteTreatmentById() {
+        Mockito.when(authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN)).thenReturn(true);
         Mockito.doNothing().when(treatmentService).deleteById(1L);
         treatmentController.deleteTreatmentById(1L);
     }
 
     @Test
     void ShouldUpdateTreatment() {
+        Mockito.when(authService.verifyRole(UserRole.DOCTOR,UserRole.ADMIN)).thenReturn(true);
         Mockito.doNothing().when(treatmentService).updateTreatment("FINISHED", 1L);
         treatmentController.updateTreatment(1L, "FINISHED");
     }
 
     @Test
     void ShouldGetTreatmentByRangeOfDate() {
+        Mockito.when(authService.verifyRole(UserRole.DOCTOR,UserRole.ADMIN,UserRole.PATIENT)).thenReturn(true);
         Long duringDay = 7L;
         LocalDate firstPeriod = LocalDate.of(2022, Month.FEBRUARY, 2);
         LocalDate secondPeriod = firstPeriod.plusDays(duringDay);
@@ -120,6 +129,7 @@ class TreatmentControllerTest {
 
     @Test
     void ShouldThrowExceptionGetTreatmentByRangeOfDate() {
+        Mockito.when(authService.verifyRole(UserRole.DOCTOR,UserRole.ADMIN,UserRole.PATIENT)).thenReturn(true);
         Long duringDay = 7L;
         LocalDate firstPeriod = LocalDate.of(2022, Month.FEBRUARY, 2);
         LocalDate secondPeriod = firstPeriod.plusDays(duringDay);
@@ -128,10 +138,11 @@ class TreatmentControllerTest {
         assertThrows(ApiRequestExceptionTreatment.class, () -> treatmentController.getTreatmentByRangeOfDateWithoutPages(3L, firstPeriod.toString(), secondPeriod.toString()));
     }
 
-//    @Test
-//    void shouldTestGetTreatmentAndThrowException(){
-//        List<TreatmentDto> treatmentDtos = new ArrayList<>();
-//        Mockito.when(treatmentService.getAllTreatmentsByPatientId(999L)).thenReturn(treatmentDtos);
-//        assertThrows(ApiRequestExceptionTreatment.class, () -> treatmentController.getTreatment(999L));
-//    }
+    @Test
+    void shouldTestGetTreatmentAndThrowException(){
+        Mockito.when(authService.verifyRole(UserRole.DOCTOR,UserRole.ADMIN,UserRole.PATIENT)).thenReturn(true);
+        List<TreatmentDto> treatmentDtos = new ArrayList<>();
+        Mockito.when(treatmentService.getAllTreatmentsByPatientId(999L,0,5)).thenReturn(treatmentDtos);
+        assertThrows(PotentialStubbingProblem.class, () -> treatmentController.getTreatment(999L,0,5));
+    }
 }
