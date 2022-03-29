@@ -61,12 +61,12 @@ public class TreatmentController {
             }
         }
         else {
-            throw new ApiRequestExceptionTreatment(wrongVerification);
+            throw new ApiRequestExceptionTreatment(wrongVerification,HttpStatus.FORBIDDEN);
         }
     }
 
     /**
-     * @param id       is demanding id of Patient.
+     * @param id is demanding id of Patient.
      * @param currency receive type of currency, after that will be returned result price in currency that was requested (receive only: "USD", "EUR","RUB","UAH")
      * @return all Treatments of received id of Patient with needed currency.
      */
@@ -89,7 +89,7 @@ public class TreatmentController {
                 throw new ApiRequestExceptionTreatment(dontHaveCurrencyExchange);
             }
         }
-        throw new ApiRequestExceptionTreatment(wrongVerification);
+        throw new ApiRequestExceptionTreatment(wrongVerification,HttpStatus.FORBIDDEN);
     }
 
     /**
@@ -121,7 +121,7 @@ public class TreatmentController {
                 throw new ApiRequestExceptionTreatment(dontHaveCurrencyExchange);
             }
         }
-        throw new ApiRequestExceptionTreatment(wrongVerification);
+        throw new ApiRequestExceptionTreatment(wrongVerification,HttpStatus.FORBIDDEN);
     }
 
     /**
@@ -136,13 +136,7 @@ public class TreatmentController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/treatments")
     public List<TreatmentDto> getAll() {
-        if (authService.verifyRole(UserRole.ADMIN)) {
-            if (treatmentService.getAllTreatments().isEmpty()) {
-                throw new ApiRequestExceptionTreatment(notFoundTreatments);
-            }
-            return treatmentService.getAllTreatments();
-        }
-        throw new ApiRequestExceptionTreatment(wrongVerification);
+        return treatmentService.getAll();
     }
 
     /**
@@ -162,7 +156,7 @@ public class TreatmentController {
                 throw new ApiRequestExceptionTreatment(didntCreate);
             }
         } else {
-            throw new ApiRequestExceptionTreatment(wrongVerification);
+            throw new ApiRequestExceptionTreatment(wrongVerification,HttpStatus.FORBIDDEN);
         }
     }
 
@@ -182,7 +176,7 @@ public class TreatmentController {
             treatmentService.deleteById(id);
         }
         else {
-            throw new ApiRequestExceptionTreatment(wrongVerification);
+            throw new ApiRequestExceptionTreatment(wrongVerification,HttpStatus.FORBIDDEN);
         }
     }
 
@@ -203,7 +197,7 @@ public class TreatmentController {
             treatmentService.updateTreatment(status, id);
         }
         else {
-            throw new ApiRequestExceptionTreatment(wrongVerification);
+            throw new ApiRequestExceptionTreatment(wrongVerification,HttpStatus.FORBIDDEN);
         }
     }
 
@@ -234,7 +228,7 @@ public class TreatmentController {
             }
             return treatmentService.getAllTreatmentsByPatientIdAndRangeDates(LocalDate.parse(beforeDate), LocalDate.parse(afterDate), id, numberOfPage, countOfItems);
         }
-        throw new ApiRequestExceptionTreatment(wrongVerification);
+        throw new ApiRequestExceptionTreatment(wrongVerification,HttpStatus.FORBIDDEN);
     }
 
 
@@ -262,7 +256,7 @@ public class TreatmentController {
             }
             return allTreatmentsByPatientIdAndRangeDates;
         }
-        throw new ApiRequestExceptionTreatment(wrongVerification);
+        throw new ApiRequestExceptionTreatment(wrongVerification,HttpStatus.FORBIDDEN);
     }
 
     /**
@@ -283,6 +277,6 @@ public class TreatmentController {
         if (authService.verifyRole(UserRole.DOCTOR, UserRole.ADMIN,UserRole.PATIENT)) {
             return treatmentService.getAllTreatmentsByPatientIdAndDoctorId(patientId, doctorId);
         }
-        throw new ApiRequestExceptionTreatment(wrongVerification);
+        throw new ApiRequestExceptionTreatment(wrongVerification,HttpStatus.FORBIDDEN);
     }
 }

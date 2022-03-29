@@ -17,7 +17,9 @@ import org.springframework.http.HttpStatus;
 public class ApiException {
     private final String message;
     private final HttpStatus httpStatus;
+    private final int code;
     private final String zonedDateTime;
+
 
 
 }

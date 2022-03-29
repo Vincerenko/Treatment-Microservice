@@ -21,6 +21,6 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long> {
     boolean existsByOtherId(Long Long);
 
     @Modifying
-    @Query("update medicine e set e.count = :count+e.count where e.otherId = :id")
+    @Query("update medicine e set e.amount = :count+e.amount where e.otherId = :id")
     void updateMedicineCount(@Param(value = "count") int count, @Param(value = "id") Long id);
 }

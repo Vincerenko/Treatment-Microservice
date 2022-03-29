@@ -22,7 +22,7 @@ class ApiExceptionHandlerRequestTest {
     @Test
     void ShouldHandleApiRequestException() {
         ApiRequestExceptionTreatment exception = new ApiRequestExceptionTreatment(text);
-        ApiException apiException = new ApiException(text, HttpStatus.BAD_REQUEST, LocalDateTime.now().format(dateTimeFormatter));
+        ApiException apiException = new ApiException(text, HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value(), LocalDateTime.now().format(dateTimeFormatter));
         ResponseEntity<Object> actual = apiExceptionHandlerRequest.handleApiRequestException(exception);
         ResponseEntity expect = new ResponseEntity(apiException, HttpStatus.BAD_REQUEST);
         assertEquals(expect, actual);

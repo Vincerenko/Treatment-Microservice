@@ -17,13 +17,31 @@ public class ApiExceptionHandlerRequest {
     private final String patternTime = "dd.MM.yyyy HH:mm:ss";
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(patternTime);
 
+//    @ExceptionHandler(value = {ApiRequestExceptionTreatment.class})
+//    public ResponseEntity<Object> handleApiRequestException(ApiRequestExceptionTreatment e) {
+//        HttpStatus statusBadRequest = HttpStatus.BAD_REQUEST;
+//        ApiException apiException = new ApiException(
+//                e.getMessage(),
+//                statusBadRequest,
+//                LocalDateTime.now().format(dateTimeFormatter));
+//        return new ResponseEntity<>(apiException, statusBadRequest);
+//    }
+
     @ExceptionHandler(value = {ApiRequestExceptionTreatment.class})
-    public ResponseEntity<Object> handleApiRequestException(ApiRequestExceptionTreatment e) {
-        HttpStatus statusBadRequest = HttpStatus.BAD_REQUEST;
+    public ResponseEntity <Object>handleApiRequestException(ApiRequestExceptionTreatment e) {
+        HttpStatus status;
+        if (e.getHttpStatus() == null) {
+            status = HttpStatus.BAD_REQUEST;
+        }
+        else {
+             status = e.getHttpStatus();
+        }
         ApiException apiException = new ApiException(
                 e.getMessage(),
-                statusBadRequest,
-                LocalDateTime.now().format(dateTimeFormatter));
-        return new ResponseEntity<>(apiException, statusBadRequest);
+                status,
+                status.value(),
+                LocalDateTime.now().format(dateTimeFormatter)
+                );
+        return new ResponseEntity<>(apiException, status);
     }
 }

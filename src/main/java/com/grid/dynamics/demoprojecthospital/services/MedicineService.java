@@ -23,7 +23,7 @@ public class MedicineService {
         treatmentEntity.setId(treatmentId);
         medicine.setTreatment(treatmentEntity);
         medicineRepository.save(medicine);
-        treatmentRepository.updateTreatmentPriceById(medicine.getPrice() * medicine.getCount(), treatmentId);
+        treatmentRepository.updateTreatmentPriceById(medicine.getPrice() * medicine.getAmount(), treatmentId);
     }
 
     public void saveArrayMedicine(List<Medicine> medicine, Long treatmentId) {
@@ -33,7 +33,7 @@ public class MedicineService {
             Medicine medicineForSave = medicine.get(i);
             medicineForSave.setTreatment(treatmentEntity);
             medicineRepository.save(medicineForSave);
-            treatmentRepository.updateTreatmentPriceById(medicine.get(i).getPrice() * medicine.get(i).getCount(), treatmentId);
+            treatmentRepository.updateTreatmentPriceById(medicine.get(i).getPrice() * medicine.get(i).getAmount(), treatmentId);
         }
     }
 
@@ -41,15 +41,15 @@ public class MedicineService {
         MedicineDto medicineDto = medicineServiceApi.getMedicineById(medicineId);
         Medicine medicine = new Medicine(medicineDto);
         if (medicineRepository.existsByOtherId(medicineId)) {
-            medicineRepository.updateMedicineCount(medicine.getCount(), medicineId);
-            treatmentRepository.updateTreatmentPriceById(medicine.getPrice() * medicine.getCount(), treatmentId);
+            medicineRepository.updateMedicineCount(medicine.getAmount(), medicineId);
+            treatmentRepository.updateTreatmentPriceById(medicine.getPrice() * medicine.getAmount(), treatmentId);
 
         } else {
             TreatmentEntity treatmentEntity = new TreatmentEntity();
             treatmentEntity.setId(treatmentId);
             medicine.setTreatment(treatmentEntity);
             medicineRepository.save(medicine);
-            treatmentRepository.updateTreatmentPriceById(medicine.getPrice() * medicine.getCount(), treatmentId);
+            treatmentRepository.updateTreatmentPriceById(medicine.getPrice() * medicine.getAmount(), treatmentId);
         }
     }
 }

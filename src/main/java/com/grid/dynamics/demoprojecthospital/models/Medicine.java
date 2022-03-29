@@ -27,8 +27,8 @@ public class Medicine implements Serializable {
     @Column(name = "price", nullable = false)
     private Double price;
     @JsonProperty
-    @Column(name = "count", nullable = false)
-    private Integer count;
+    @Column(name = "amount", nullable = false)
+    private Integer amount;
     @JsonProperty
     @Column(name = "otherId")
     private Long otherId;
@@ -43,7 +43,7 @@ public class Medicine implements Serializable {
         this.otherId = medicineDto.getId();
         this.name = medicineDto.getName();
         this.price = medicineDto.getPrice();
-        this.count = 1;
+        this.amount = 1;
     }
 
 }

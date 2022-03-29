@@ -7,6 +7,7 @@ import com.grid.dynamics.demoprojecthospital.models.Appointment;
 import com.grid.dynamics.demoprojecthospital.models.TreatmentEntity;
 import com.grid.dynamics.demoprojecthospital.models.enums.CurrencyEnum;
 import com.grid.dynamics.demoprojecthospital.models.enums.Status;
+import com.grid.dynamics.demoprojecthospital.models.enums.UserRole;
 import com.grid.dynamics.demoprojecthospital.models.wrapper.AppointmentCalendarDto;
 import com.grid.dynamics.demoprojecthospital.repository.TreatmentRepository;
 import com.grid.dynamics.demoprojecthospital.services.api.CalendarServiceApi;
@@ -14,8 +15,10 @@ import com.grid.dynamics.demoprojecthospital.services.api.CurrencyServiceApi;
 import com.grid.dynamics.demoprojecthospital.utils.Rounder;
 import com.grid.dynamics.demoprojecthospital.utils.TreatmentValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,7 +34,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TreatmentService {
-
+    private final String notFoundTreatments = "No such any treatments.";
+    private final String wrongVerification = "Sorry, but you dont have access to this page";
     /**
      * CurrencyServiceApi provide course exchange by today.
      */
@@ -46,6 +50,7 @@ public class TreatmentService {
     private final TreatmentValidator treatmentValidator;
     private final AppointmentService appointmentService;
     private final CalendarServiceApi calendarServiceApi;
+    private final AuthService authService;
 
     /**
      * @return List of TreatmentDto from dataBase Treatments (all history from hospital)
@@ -161,8 +166,8 @@ public class TreatmentService {
             TreatmentEntity treatmentEntity = new TreatmentEntity(treatmentSaveDto);
             treatmentEntity.getAppointment().forEach(n -> n.setTreatment(treatmentEntity));
             treatmentEntity.getMedicine().forEach(n -> n.setTreatment(treatmentEntity));
-            treatmentSaveDto.getAppointment().forEach(n -> treatmentEntity.setPrice(treatmentEntity.getPrice() + (n.getPrice() * n.getCount())));
-            treatmentSaveDto.getMedicine().forEach(n -> treatmentEntity.setPrice(treatmentEntity.getPrice() + (n.getPrice() * n.getCount())));
+            treatmentSaveDto.getAppointment().forEach(n -> treatmentEntity.setPrice(treatmentEntity.getPrice() + (n.getPrice() * n.getAmount())));
+            treatmentSaveDto.getMedicine().forEach(n -> treatmentEntity.setPrice(treatmentEntity.getPrice() + (n.getPrice() * n.getAmount())));
             treatmentEntity.setCurrency("UAH");
             treatmentRepository.save(treatmentEntity);
             return true;
@@ -210,4 +215,13 @@ public class TreatmentService {
         return treatmentRepository.findAllByStartDateGreaterThanEqualAndEndDateLessThanEqualAndPatientIdIs(beforeDate, afterDate, patientId);
     }
 
+    public List<TreatmentDto> getAll(){
+        if (authService.verifyRole(UserRole.ADMIN)) {
+            if (getAllTreatments().isEmpty()) {
+                throw new ApiRequestExceptionTreatment(notFoundTreatments);
+            }
+            return getAllTreatments();
+        }
+        throw new ApiRequestExceptionTreatment(wrongVerification, HttpStatus.FORBIDDEN);
+    }
 }

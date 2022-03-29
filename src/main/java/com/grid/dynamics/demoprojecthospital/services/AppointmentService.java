@@ -18,7 +18,7 @@ public class AppointmentService {
         treatmentEntity.setId(treatmentId);
         appointment.setTreatment(treatmentEntity);
         appointmentRepository.save(appointment);
-        treatmentRepository.updateTreatmentPriceById(appointment.getPrice() * appointment.getCount(), treatmentId);
+        treatmentRepository.updateTreatmentPriceById(appointment.getPrice() * appointment.getAmount(), treatmentId);
     }
 
 }

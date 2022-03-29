@@ -3,10 +3,7 @@ package com.grid.dynamics.demoprojecthospital.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grid.dynamics.demoprojecthospital.models.wrapper.AppointmentCalendarDto;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -16,10 +13,9 @@ import java.time.LocalDateTime;
  * This class describe model of service in hospital that mapped to Data Base and this class is used in business logic
  */
 @Entity(name = "appointment")
-//@AllArgsConstructor
+@AllArgsConstructor
 @NoArgsConstructor
 @Data
-//@RequiredArgsConstructor
 public class Appointment implements Serializable {
 
     @Id
@@ -36,7 +32,7 @@ public class Appointment implements Serializable {
     @Column(nullable = false)
     private Double price;
     @JsonProperty
-    private Integer count;
+    private Integer amount;
     @JsonProperty
     private LocalDateTime meetDate;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,15 +47,18 @@ public class Appointment implements Serializable {
         this.name = appointmentCalendarDto.getTitle();
         this.price = appointmentCalendarDto.getCost();
         this.meetDate = LocalDateTime.of(appointmentCalendarDto.getDate(), appointmentCalendarDto.getFromTime());
-        this.count = 1;
+        this.amount = 1;
     }
 
-    public Appointment(Long id, String name, Double price, Integer count, LocalDateTime meetDate, TreatmentEntity treatment) {
+    public Appointment(Long id, String name, Double price, Integer amount, LocalDateTime meetDate, TreatmentEntity treatment) {
         this.id = id;
+        this.otherId = otherId;
         this.name = name;
         this.price = price;
-        this.count = count;
+        this.amount = amount;
         this.meetDate = meetDate;
         this.treatment = treatment;
     }
+
+
 }

@@ -29,9 +29,9 @@ class MedicineServiceTest {
         treatmentEntity.setId(1L);
         medicine.setTreatment(treatmentEntity);
         medicine.setPrice(100.0);
-        medicine.setCount(2);
+        medicine.setAmount(2);
         when(medicineRepository.save(medicine)).thenReturn(medicine);
-        doNothing().when(treatmentRepository).updateTreatmentPriceById(medicine.getPrice() * medicine.getCount(), treatmentEntity.getId());
+        doNothing().when(treatmentRepository).updateTreatmentPriceById(medicine.getPrice() * medicine.getAmount(), treatmentEntity.getId());
         medicineService.saveCustomMedicine(medicine, treatmentEntity.getId());
 
     }

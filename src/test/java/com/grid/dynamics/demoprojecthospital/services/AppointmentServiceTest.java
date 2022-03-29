@@ -1,6 +1,5 @@
 package com.grid.dynamics.demoprojecthospital.services;
 
-import com.grid.dynamics.demoprojecthospital.dto.TreatmentSaveDto;
 import com.grid.dynamics.demoprojecthospital.models.Appointment;
 import com.grid.dynamics.demoprojecthospital.models.TreatmentEntity;
 import com.grid.dynamics.demoprojecthospital.repository.AppointmentRepository;
@@ -28,7 +27,7 @@ class AppointmentServiceTest {
     void ShouldSaveAppointment() {
         Appointment appointment = new Appointment();
         appointment.setPrice(100.0);
-        appointment.setCount(2);
+        appointment.setAmount(2);
         Mockito.when(appointmentRepository.save(appointment)).thenReturn(appointment);
         appointmentService.saveAppointment(appointment, 1L);
     }
@@ -40,7 +39,7 @@ class AppointmentServiceTest {
         treatmentEntity.setId(45L);
         appointment2.setTreatment(treatmentEntity);
         appointment2.setTreatment(new TreatmentEntity());
-        Mockito.doNothing().when(treatmentRepository).updateTreatmentPriceById(appointment2.getPrice() * appointment2.getCount(),1L);
+        Mockito.doNothing().when(treatmentRepository).updateTreatmentPriceById(appointment2.getPrice() * appointment2.getAmount(),1L);
         Mockito.when(appointmentRepository.save(appointment2)).thenReturn(appointment2);
         appointmentService.saveAppointment(appointment2, 1L);
     }
@@ -49,7 +48,7 @@ class AppointmentServiceTest {
     void ShouldSaveAppointmentThirdTest() {
         Appointment appointment = new Appointment();
         appointment.setId(56L);
-        appointment.setCount(3);
+        appointment.setAmount(3);
         appointment.setName("Test");
         appointment.setMeetDate(LocalDateTime.now());
         appointment.setPrice(200.0);
