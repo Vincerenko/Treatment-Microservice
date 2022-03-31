@@ -136,7 +136,13 @@ public class TreatmentController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/treatments")
     public List<TreatmentDto> getAll() {
-        return treatmentService.getAll();
+        if (authService.verifyRole(UserRole.ADMIN)) {
+            if (treatmentService.getAllTreatments().isEmpty()) {
+                throw new ApiRequestExceptionTreatment(notFoundTreatments);
+            }
+            return treatmentService.getAllTreatments();
+        }
+        throw new ApiRequestExceptionTreatment(wrongVerification, HttpStatus.FORBIDDEN);
     }
 
     /**

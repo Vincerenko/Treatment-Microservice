@@ -214,14 +214,4 @@ public class TreatmentService {
     public List<TreatmentEntity> getAllTreatmentsByPatientIdAndRangeDates(LocalDate beforeDate, LocalDate afterDate, Long patientId) {
         return treatmentRepository.findAllByStartDateGreaterThanEqualAndEndDateLessThanEqualAndPatientIdIs(beforeDate, afterDate, patientId);
     }
-
-    public List<TreatmentDto> getAll(){
-        if (authService.verifyRole(UserRole.ADMIN)) {
-            if (getAllTreatments().isEmpty()) {
-                throw new ApiRequestExceptionTreatment(notFoundTreatments);
-            }
-            return getAllTreatments();
-        }
-        throw new ApiRequestExceptionTreatment(wrongVerification, HttpStatus.FORBIDDEN);
-    }
 }

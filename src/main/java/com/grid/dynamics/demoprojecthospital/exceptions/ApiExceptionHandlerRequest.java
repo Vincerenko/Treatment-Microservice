@@ -17,16 +17,6 @@ public class ApiExceptionHandlerRequest {
     private final String patternTime = "dd.MM.yyyy HH:mm:ss";
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(patternTime);
 
-//    @ExceptionHandler(value = {ApiRequestExceptionTreatment.class})
-//    public ResponseEntity<Object> handleApiRequestException(ApiRequestExceptionTreatment e) {
-//        HttpStatus statusBadRequest = HttpStatus.BAD_REQUEST;
-//        ApiException apiException = new ApiException(
-//                e.getMessage(),
-//                statusBadRequest,
-//                LocalDateTime.now().format(dateTimeFormatter));
-//        return new ResponseEntity<>(apiException, statusBadRequest);
-//    }
-
     @ExceptionHandler(value = {ApiRequestExceptionTreatment.class})
     public ResponseEntity <Object>handleApiRequestException(ApiRequestExceptionTreatment e) {
         HttpStatus status;
